@@ -9,6 +9,8 @@
 #include "adc.h"
 #include "usb_serial.h"
 #include "uart.h"
+#include "pwm.h"
+
 #define LED_OFF(s)  PORTB |=  (1<<s);
 #define LED_ON(s)   PORTB &= ~(1<<s);
 
@@ -39,8 +41,6 @@ void color_task (void)
 	LED_OFF(LED_RED);
 	LED_OFF(LED_GREEN);
 	LED_OFF(LED_BLUE);
-	usb_send_str("\r\n\r\nMessung:");
-	sleep_ms(125);
 
 	uint16_t red,green,blue=0;
 
@@ -48,21 +48,10 @@ void color_task (void)
 	green	= get_color_value(LED_GREEN);
 	blue	= get_color_value(LED_BLUE);
 
-	usb_send_str("\r\nRED:\t");
-	usb_send_int(red);
-	usb_send_str("\r\nGREEN:\t");
-	usb_send_int(green);
-	usb_send_str("\r\nBLUE:\t");
-	usb_send_int(blue);
-
 	red= calulate_color_value(red,red_white,red_diff);
     green= calulate_color_value(green,green_white,green_diff);
     blue= calulate_color_value(blue,blue_white,blue_diff);
-	/*
-	red		= red_white-red;
-	green	= green_white-green;
-	blue	= blue_white-blue;
-	*/
+
 	usb_send_str("\r\n\r\nRED:\t");
 	usb_send_int(red);
 	usb_send_str("\r\nGREEN:\t");
@@ -73,18 +62,38 @@ void color_task (void)
 	if (red>150)
 	{
 		if (green>100){uart_putstr("\r\nYellow");}
-		else if (green>55)	{uart_putstr("\r\nOrange");	}
-		else {uart_putstr("\r\nRed");};	
+		else if (green>52)	{uart_putstr("\r\nOrange");	}
+		else {uart_putstr("\r\nRed   ");};	
 	}
 	else
 	{
-		if ((green<100)&&(blue<100)){uart_putstr("\r\nBrown");}
-		else if (green>blue){uart_putstr("\r\nGreen");}
-		else{uart_putstr("\r\nBlue");}
+		if ((green<100)&&(blue<100)){uart_putstr("\r\nBrown ");}
+		else if (green>blue){uart_putstr("\r\nGreen ");}
+		else{uart_putstr("\r\nBlue  ");}
 	}
+	
+	//rgb values to display
+	uart_putstr("              ");
+	uart_putstr("R:");
+	uart_putint(red,10);
+	uart_putstr("  G:");
+	uart_putint(green,10);
+	uart_putstr("  B:");
+	uart_putint(blue,10);
+	//anpassung für PWM
+	red*=21;
+	green*=23;
+	blue*=13;
+	if (red	> 4096)		{red	= 4095;}
+	if (green > 4096)	{green	= 4095;}
+	if (blue > 4096)	{blue	= 4095;}
+		
+	PWM_LED_RED		=red;
+	PWM_LED_GREEN	=green;
+	PWM_LED_BLUE	=blue;
 }
 
-uint16_t calulate_color_value (uint16_t color_val, uint16_t white_val, uint16_t div_val )//wert-schwart/diff
+uint16_t calulate_color_value (uint16_t color_val, uint16_t white_val, uint16_t div_val )//wert-schwarz/diff
 {
 	float temp = (white_val-color_val); 
 	if (temp<0){temp=0;}
@@ -97,7 +106,7 @@ uint16_t get_color_value (uint8_t led_nr)
 {
 	uint16_t ret_val =0;
 	LED_ON(led_nr);
-	sleep_ms(25);
+	sleep_ms(35);
 	ret_val= readADC(0);
 	LED_OFF(led_nr);
 	sleep_ms(15);

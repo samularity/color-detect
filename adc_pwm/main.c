@@ -20,7 +20,7 @@ B2 - Blue
 #include "adc.h"
 #include "color_detect.h"
 #include "uart.h"
-
+#include "pwm.h"
 #define BAUD_RATE 9600
 
 int main(void)
@@ -38,7 +38,7 @@ int main(void)
 	
 	adc_init();
 	usb_init();			//initalisiere usb
-	
+	timer1_init();		//init pwm
 	
 	PORTB= 0x00;
 	sleep_ms(125);
@@ -57,9 +57,8 @@ while(1)
  {
 		if ( !(PINE & (1 << PE2)) ) //portpin auf gnd
 		{
-			sleep_ms(50);
-			usb_send_int(readADC(0));
-			usb_send_str("\r\n");
+		color_task();
+		sleep_ms(50);
 		}
 	 
 	if (usb_serial_available())
@@ -70,11 +69,14 @@ while(1)
 			
 		switch(input)
 		{
-		case 's': sw_abgleich(schwarz);break;
-		case 'w': sw_abgleich(weiss);break;
+		case 's': sw_abgleich(schwarz);	break;
+		case 'w': sw_abgleich(weiss);	break;
+		case 'r': RED;					break;
+		case 'g': GREEN;				break;
+		case 'b': BLUE;					break;
 		case 'q': 
-		case 27: E6_on; bootloader(); break;
-		default: color_task();break;
+		case 27: E6_on; bootloader();	break;
+		default: color_task();			break;
 		}	
 		usb_serial_flush_input();	
 	 }
@@ -98,6 +100,9 @@ void sleep_ms(uint16_t ms){
 
 void bootloader (void)
 {
+	usb_send_str("\r\n\r\n============================================\r\n");
+	usb_send_str("===\t\tBOOTLOADER\t\t===\r\n");
+	usb_send_str("===========================================\r\n");
 	MCUCR |=  (1 << IVCE);  //IVCE  = 1		//register für restret
 	MCUCR |=  (1 << IVSEL); //IVSEL = 1		//register für restret
 	TIMSK0 = 0;             //Timer-Interrupt ausschalten
