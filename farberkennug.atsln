@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "color_detect", "adc_pwm\color_detect.cproj", "{288DE178-A92F-4BF2-8F29-935451F3E055}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{288DE178-A92F-4BF2-8F29-935451F3E055}.Debug|AVR.ActiveCfg = Debug|AVR
+		{288DE178-A92F-4BF2-8F29-935451F3E055}.Debug|AVR.Build.0 = Debug|AVR
+		{288DE178-A92F-4BF2-8F29-935451F3E055}.Release|AVR.ActiveCfg = Release|AVR
+		{288DE178-A92F-4BF2-8F29-935451F3E055}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
