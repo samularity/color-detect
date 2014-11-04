@@ -46,3 +46,11 @@ Icon
 .o
 .srec
 .mk
+*.d
+*.o
+*.eep
+*.elf
+*.lss
+*.map
+*.srec
+*.mk
