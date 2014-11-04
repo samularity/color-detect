@@ -36,12 +36,12 @@ uint16_t readADC( uint8_t adc_channel)
 	ADCL = 0x00;
 
 	// mittel aus 4 werten
-		for (uint8_t g = 0; g < 8; g++) {
+		for (uint8_t g = 0; g < 16; g++) {
   			ADCSRA |= (1<<ADSC); //messung beginnen
 			while(ADCSRA & (1 << ADSC)); // warten bis abgeschlossen
 			adc_Value = adc_Value + ( ADC ); // wert speichern
 			}	  
-    adc_Value = adc_Value /8 ; //mittel aus den 8 werten
+    adc_Value = adc_Value /16 ; //mittel aus den 8 werten
 	return adc_Value; //wert zurückgeben
 }
 
