@@ -9,9 +9,9 @@
 PinOut TinyMega :	http://shackspace.de/wiki/doku.php?id=project:tinymega
 
 F0 - Analog in LDR
-D0 - Red
-D1 - Green
-D2 - Blue
+B0 - Red
+B1 - Green
+B2 - Blue
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 /*/////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,6 +19,9 @@ D2 - Blue
 #include "main.h"
 #include "adc.h"
 #include "color_detect.h"
+#include "uart.h"
+
+#define BAUD_RATE 9600
 
 int main(void)
 {
@@ -27,20 +30,28 @@ int main(void)
 	
 	DDRE &= ~(1 << PE2); // pin d2 als eingang
 	PORTE |= (1 << PE2); // pullup aktiviern
-
+	DDRD|=(1 << PD3); //uart tx
 	DDRE|=(1 << PE6); //board led
 	DDRB = 0xff;//alle als ausgang für leds
-	PORTB= 0xFF;
+	PORTB= 0xFF;//alle als ausgang für leds
 	DDRF = 0x00; //alle eingang für LDR
 	
 	adc_init();
-	
-	
 	usb_init();			//initalisiere usb
-	sleep_ms(500);
 	
-	//	setPwmDuty (readADC(0));
-//	setPeriod(readADC(1)*100);
+	
+	PORTB= 0x00;
+	sleep_ms(125);
+	PORTB= 0xFF;
+	sleep_ms(125);
+	PORTB= 0x00;
+	sleep_ms(125);
+	PORTB= 0xFF;
+	
+	
+	uart_init(BAUD_RATE);
+	uart_putstr("\r\ninit done");
+	sleep_ms(500);
 	
 while(1)   
  {
@@ -90,6 +101,6 @@ void bootloader (void)
 	MCUCR |=  (1 << IVCE);  //IVCE  = 1		//register für restret
 	MCUCR |=  (1 << IVSEL); //IVSEL = 1		//register für restret
 	TIMSK0 = 0;             //Timer-Interrupt ausschalten
-	sleep_ms(50);
+	sleep_ms(25);
 	asm volatile ("jmp 0x3800");
 }
